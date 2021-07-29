@@ -246,7 +246,7 @@ def compute_error(obs, pred):
     return (rho, rmse, mae)
 
 
-def plot_(X, Y, rho, M=300, U=200):
+def plot_(X, Y, rho, M=300, U=200, test_type="Embedding Dim"):
     """
     Generates all the necessary plots for visual inspection of the results
     obtained from Simplex or SMAP methods.
@@ -260,26 +260,32 @@ def plot_(X, Y, rho, M=300, U=200):
         Void
     """
     idx = np.argmax(np.array(rho))
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig = plt.figure(figsize=(16, 4))
+    fig.subplots_adjust(hspace=0.3, wspace=0.5)
+    ax = fig.add_subplot(141)
     for i in range(len(Y)):
-        ax.plot(Y[i], 'k', zorder=0, alpha=0.3)
-    ax.plot(X[U:M+U], 'r', zorder=9)
-    ax.plot(Y[idx], 'g', zorder=10)
+        if i == 0:
+            ax.plot(Y[i], 'k', zorder=0, alpha=0.3, label="predictions")
+        else:
+            ax.plot(Y[i], 'k', zorder=0, alpha=0.3)
+    ax.plot(X[U:M+U], 'r', zorder=9, label='target')
+    ax.legend()
     ax.set_title("Predictions")
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(142)
     ax.plot(X[U:M+U], Y[idx], 'ko', zorder=9, mfc='w')
+    ax.set_title("Phase space (target/prediction)")
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(X[U:M+U], 'r', zorder=9)
-    ax.plot(Y[idx], 'k', zorder=10)
+    ax = fig.add_subplot(143)
+    ax.plot(X[U:M+U], 'r', zorder=9, label="target")
+    ax.plot(Y[idx], 'k', zorder=10, label="prediction")
+    ax.legend()
+    ax.set_title("Best prediction")
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(144)
     ax.plot(np.array(rho))
     ax.set_xlim([0, 10])
-    ax.set_title("rho")
+    ax.set_title("Forecast Skill (rho)")
+    ax.set_ylabel("Forecast Skill")
+    ax.set_xlabel(test_type)
     ax.grid()

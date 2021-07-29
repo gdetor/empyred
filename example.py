@@ -51,7 +51,7 @@ def lorenz(X, t, sigma, beta, rho):
 
 
 if __name__ == '__main__':
-    signal = 'tent'     # Signal upon the test runs
+    signal = 'sin'     # Signal upon the test runs
 
     # Different cases can be used
     if signal == 'sin':         # Sinusoidal
@@ -95,7 +95,7 @@ if __name__ == '__main__':
         print(rho, rmse, mae)
         rho_.append(rho)
     opt = np.argmax(rho_) + 1
-    plot_(X, Y_, rho_)
+    plot_(X, Y_, rho_, M=M, U=U, test_type="Embedding Dim")
 
     print("Examine prediction decay.")
     print("================================================")
@@ -113,7 +113,7 @@ if __name__ == '__main__':
         rho, rmse, mae = compute_error(X[U:M+U], Y)
         print(rho, rmse, mae)
         rho_.append(rho)
-    plot_(X, Y_, rho_)
+    plot_(X, Y_, rho_, M=M, U=U, test_type="Time to Prediction")
 
     print("Identify Nonlineariry.")
     print("================================================")
@@ -132,5 +132,5 @@ if __name__ == '__main__':
         rho, rmse, mae = compute_error(X[U:M+U], Y)
         rho_.append(rho)
         print(rho, rmse, mae)
-    plot_(X, Y_, rho_)
+    plot_(X, Y_, rho_, M=M, U=U, test_type="Nonlinearity")
     plt.show()
