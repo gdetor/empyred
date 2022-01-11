@@ -87,10 +87,16 @@ def create_library(X, E=3, tau=1):
         the placed in the first columnt of the returned array.
     """
     M = X.shape[0]
-    tmp = np.zeros((M, E))
+    # limit = (E-1)*tau
+    embed = np.zeros((M, E))
     for j in range(E):
-        tmp[:, j] = np.roll(X, tau*j)
-    return tmp
+        tmp = np.roll(X, -tau*j)
+        # if limit == 0:
+        #     embed[:, j] = tmp
+        # else:
+        #     embed[:, j] = tmp[:-limit]
+        embed[:, j] = tmp
+    return embed
 
 
 # def create_library(X, E=3, tau=1):
@@ -102,7 +108,8 @@ def create_library(X, E=3, tau=1):
 #     return tmp
 
 
-def simplex_projection(data, library, target, embedding_dim=3, tau=1, Tp=1):
+def simplex_projection(data, library, target, embedding_dim=3, tau=1, Tp=1,
+                       n_neighbors=0):
     """
     This function implements the Simplex Projection method proposed by Sugihara
     and May in "Nonlinear forecasting as a way of distinguishing chaos from
@@ -121,7 +128,10 @@ def simplex_projection(data, library, target, embedding_dim=3, tau=1, Tp=1):
     """
     X = data.copy()
     E = embedding_dim
-    K = E + 1
+    if n_neighbors == 0:
+        K = E + 1
+    else:
+        K = n_neighbors
 
     res = library
 
@@ -246,7 +256,7 @@ def compute_error(obs, pred):
     return (rho, rmse, mae)
 
 
-def plot_(X, Y, rho, M=300, U=200, test_type="Embedding Dim"):
+def plot_(X, Y, rho, M=300, U=200, test_type="Embedding Dim", details=None):
     """
     Generates all the necessary plots for visual inspection of the results
     obtained from Simplex or SMAP methods.
@@ -260,32 +270,41 @@ def plot_(X, Y, rho, M=300, U=200, test_type="Embedding Dim"):
         Void
     """
     idx = np.argmax(np.array(rho))
-    fig = plt.figure(figsize=(16, 4))
-    fig.subplots_adjust(hspace=0.3, wspace=0.5)
-    ax = fig.add_subplot(141)
-    for i in range(len(Y)):
-        if i == 0:
-            ax.plot(Y[i], 'k', zorder=0, alpha=0.3, label="predictions")
-        else:
-            ax.plot(Y[i], 'k', zorder=0, alpha=0.3)
-    ax.plot(X[U:M+U], 'r', zorder=9, label='target')
-    ax.legend()
-    ax.set_title("Predictions")
+    if details:
+        fig = plt.figure(figsize=(16, 4))
+        fig.subplots_adjust(hspace=0.3, wspace=0.5)
+        ax = fig.add_subplot(141)
+        for i in range(len(Y)):
+            if i == 0:
+                ax.plot(Y[i], 'k', zorder=0, alpha=0.3, label="predictions")
+            else:
+                ax.plot(Y[i], 'k', zorder=0, alpha=0.3)
+        ax.plot(X[U:M+U], 'r', zorder=9, label='target')
+        ax.legend()
+        ax.set_title("Predictions")
 
-    ax = fig.add_subplot(142)
-    ax.plot(X[U:M+U], Y[idx], 'ko', zorder=9, mfc='w')
-    ax.set_title("Phase space (target/prediction)")
+        ax = fig.add_subplot(142)
+        ax.plot(X[U:M+U], Y[idx], 'ko', zorder=9, mfc='w')
+        ax.set_title("Phase space (target/prediction)")
 
-    ax = fig.add_subplot(143)
-    ax.plot(X[U:M+U], 'r', zorder=9, label="target")
-    ax.plot(Y[idx], 'k', zorder=10, label="prediction")
-    ax.legend()
-    ax.set_title("Best prediction")
+        ax = fig.add_subplot(143)
+        ax.plot(X[U:M+U], 'r', zorder=9, label="target")
+        ax.plot(Y[idx], 'k', zorder=10, label="prediction")
+        ax.legend()
+        ax.set_title("Best prediction")
 
-    ax = fig.add_subplot(144)
-    ax.plot(np.array(rho))
-    ax.set_xlim([0, 10])
-    ax.set_title("Forecast Skill (rho)")
-    ax.set_ylabel("Forecast Skill")
-    ax.set_xlabel(test_type)
-    ax.grid()
+        ax = fig.add_subplot(144)
+        ax.plot(np.array(rho))
+        ax.set_xlim([0, 10])
+        ax.set_title("Forecast Skill (rho)")
+        ax.set_ylabel("Forecast Skill")
+        ax.set_xlabel(test_type)
+        ax.grid()
+    else:
+        fig = plt.figure(figsize=(6, 5))
+        ax = fig.add_subplot(111)
+        ax.plot(np.arange(len(rho)), np.array(rho), 'k', lw=2)
+        ax.set_xlim([0, 10])
+        ax.set_title("Forecast Skill (rho)")
+        ax.set_ylabel("Forecast Skill")
+        ax.set_xlabel(test_type)
