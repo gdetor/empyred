@@ -7,6 +7,8 @@ Two methods have been implemented:
  - SMAP based on *"Nonlinear forecasting for the classification of natural time
  series"* by Sugihara, 1994.
 
+> :warning: This package is not for production/research. It was created for educational purposes. If you'd like to use an EMD tool for research or production, you should use the [pyEDM](https://github.com/SugiharaLab/pyEDM).
+
 In the example file accompaning the source code (empyred.py) four different
 examples of timeseries can be found. 
 - A sinusoidal signal
